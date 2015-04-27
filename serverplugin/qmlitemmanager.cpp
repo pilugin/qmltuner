@@ -6,9 +6,8 @@
 QmlItemManager::QmlItemManager(QObject *parent)
     : QmlTunerAdaptor(parent)
 {
-    mHighlight = new QGraphicsRectItem();
-    mHighlight->setPen(QPen("red"));
-    mHighlight->setZValue(99999);
+    mHighlight = nullptr;
+    mHighlightFactory = nullptr;
 }
 
 ItemNotation QmlItemManager::describeItem(const QString &address)
@@ -106,25 +105,53 @@ bool QmlItemManager::setProperty(const QString &itemAddress, const QString &prop
 
 bool QmlItemManager::highlight(const QString &itemAddress)
 {
-//    qDebug()<<"[QMLTUNER] QmlItemManager::highlight()"<<itemAddress;
-#if 0
+    qDebug()<<"[QMLTUNER] QmlItemManager::highlight()"<<itemAddress;
+
     if (QQuickItem *di = findQmlItem(itemAddress)) {
-        if (mHighlight->scene() != di->scene()) {
-            if (mHighlight->scene())
-                mHighlight->scene()->removeItem(mHighlight);
-            if (di->scene())
-                di->scene()->addItem(mHighlight);
+        if (di == di->window()->contentItem())
+            return false; // cannot highlight root
+
+        // create component, if needed
+        if (!mHighlightFactory || qmlEngine(di) != qmlEngine(mHighlightFactory) ) {
+            if (mHighlightFactory)
+                mHighlightFactory->deleteLater();
+            mHighlightFactory = new QQmlComponent( qmlEngine(di), this);
+            mHighlightFactory->setData(
+                        "import QtQuick 2.0\n"
+                        "Rectangle { border.color: \"red\"\n"
+                        "color: \"#00000000\"\n"
+                        "}"
+                        , QUrl("Highlight") );
+
+            if (mHighlightFactory->isError()) {
+                qDebug()<<mHighlightFactory->errors();
+            }
         }
 
-        if (mHighlight->scene()) {
+        // create item, if needed
+        if (!mHighlight || qmlEngine(di) != qmlEngine(mHighlight) ) {
+            if (mHighlight)
+                mHighlight->deleteLater();
+
+            mHighlight = qobject_cast<QQuickItem *>(mHighlightFactory->create());
+        }
+
+        //qDebug()<<mHighlight;
+
+        if (mHighlight) {
+            mHighlight->setParentItem( di->window()->contentItem() );
             QRectF rect = di->boundingRect();
-            rect = QRectF(mHighlight->mapFromItem(di, rect.topLeft()), mHighlight->mapFromItem(di, rect.bottomRight()));
-            mHighlight->setRect(rect);
-        }
 
-        return true;
+            //qDebug()<<rect;
+
+            mHighlight->setX( rect.x() );
+            mHighlight->setY( rect.y() );
+            mHighlight->setWidth( rect.width() );
+            mHighlight->setHeight( rect.height() );
+
+            return true;
+        }
     }
-#endif
     return false;
 }
 

@@ -9,7 +9,7 @@
 #include <QDBusServiceWatcher>
 
 namespace Ui {
-class Form;
+class QmlTuner;
 }
 
 class Form : public QWidget
@@ -35,7 +35,7 @@ private Q_SLOTS:
     void onServiceUnregistered(const QString &service);
 
 private:
-    Ui::Form *const ui;
+    Ui::QmlTuner *const ui;
 
     QmlItemsTree mItemsModel;
     ItemPropertiesModel mPropertiesModel;

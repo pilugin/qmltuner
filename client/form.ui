@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
+ <class>QmlTuner</class>
  <widget class="QWidget" name="QmlTuner">
   <property name="geometry">
    <rect>
@@ -38,8 +38,11 @@
      </item>
      <item>
       <widget class="QPushButton" name="showTarget">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
-        <string>Load target image</string>
+        <string>[TBD]Load target image</string>
        </property>
       </widget>
      </item>
@@ -55,6 +58,9 @@
      </item>
      <item>
       <widget class="QSlider" name="opacity">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="maximumSize">
         <size>
          <width>100</width>

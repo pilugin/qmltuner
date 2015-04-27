@@ -5,8 +5,8 @@
 
 class QQuickItem;
 class QQuickWindow;
+class QQmlComponent;
 
-class QGraphicsRectItem;
 class QGraphicsPixmapItem;
 
 class QmlItemManager : public QmlTunerAdaptor
@@ -44,7 +44,8 @@ private:
 private:
     QStringList mIgnoreTypes;
 
-    QGraphicsRectItem *mHighlight;
+    QQuickItem *mHighlight;
+    QQmlComponent *mHighlightFactory;
 
     QHash<QQuickWindow *, QGraphicsPixmapItem *> mTargets;
 };

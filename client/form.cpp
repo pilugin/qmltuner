@@ -8,7 +8,7 @@ static const char qml_tuner_object[] = "/qmltuner";
 
 Form::Form(QWidget *parent)
     : QWidget(parent),
-      ui(new Ui::Form),
+      ui(new Ui::QmlTuner),
       mSettings(QLatin1String("pilugin"), QLatin1String("qmltuner"))
 {
     ui->setupUi(this);
