@@ -3,15 +3,15 @@
 
 #include <QObject>
 
-class QApplication;
+class QGuiApplication;
 class QmlItemManager;
 
 class QmlTunerServer : public QObject
 {
 public:
-    static void init(QApplication *app);
+    static void init(QGuiApplication *app);
 private:
-    QmlTunerServer(QApplication *app);
+    QmlTunerServer(QGuiApplication *app);
 
     QmlItemManager *mQmlItemMgr;
 

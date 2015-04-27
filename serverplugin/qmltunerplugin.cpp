@@ -1,6 +1,6 @@
 #include "qmltunerplugin.h"
 #include "qmltunerserver.h"
-#include <qdeclarative.h>
+#include <QtQml>
 #include <QtGui>
 #include <QtDebug>
 
@@ -26,11 +26,9 @@ void QmlTunerPlugin::registerTypes(const char *uri)
     qmlRegisterType<QmlTunerDummy>(uri, 1, 0, "QmlTunerDummy");
 }
 
-void QmlTunerPlugin::initializeEngine(QDeclarativeEngine */*engine*/, const char *uri)
+void QmlTunerPlugin::initializeEngine(QQmlEngine */*engine*/, const char *uri)
 {
     qDebug()<<"[QMLTUNER] QmlTunerPlugin::initializeEngine()"<<uri;
 
     QmlTunerServer::init(qApp);
 }
-
-Q_EXPORT_PLUGIN2(qmltuner, QmlTunerPlugin)

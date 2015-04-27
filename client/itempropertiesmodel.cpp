@@ -1,4 +1,5 @@
 #include "itempropertiesmodel.h"
+#include <QColor>
 
 ItemPropertiesModel::ItemPropertiesModel(QObject *parent) :
     QAbstractTableModel(parent)
@@ -52,9 +53,9 @@ QVariant ItemPropertiesModel::data(const QModelIndex &index, int role) const
         case Qt::BackgroundColorRole:
             if (mChangedProperties.contains(qMakePair(mItemNotation.address,
                                                       mProperties[index.row()].first)))
-                return Qt::lightGray;
+                return QColor(Qt::lightGray);
             else
-                return Qt::white;
+                return QColor(Qt::white);
         default:
             return QVariant();
         }

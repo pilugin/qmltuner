@@ -1,5 +1,7 @@
 #include "qmlitemmanager.h"
-#include <QtDeclarative>
+#include <QtWidgets>
+#include <QtQml>
+#include <QtQuick>
 
 QmlItemManager::QmlItemManager(QObject *parent)
     : QmlTunerAdaptor(parent)
@@ -14,13 +16,13 @@ ItemNotation QmlItemManager::describeItem(const QString &address)
     qDebug()<<"[QMLTUNER] QmlItemManager::describeItem()"<<address;
 
     ItemNotation in;
-    if (QDeclarativeItem *di = findQmlItem(address))
+    if (QQuickItem *di = findQmlItem(address))
         in = itemNotation(di);
 
     return in;
 }
 
-void QmlItemManager::iterateQmlTree(QDeclarativeItem *item, QVector<ItemNotation> &result) const
+void QmlItemManager::iterateQmlTree(QQuickItem *item, QVector<ItemNotation> &result) const
 {
 //    qDebug()<<"[QMLTUNER] iterateQmlTree"<<item;
 
@@ -28,9 +30,8 @@ void QmlItemManager::iterateQmlTree(QDeclarativeItem *item, QVector<ItemNotation
         ItemNotation in = itemNotation(item);
         result.append(in);
 
-        foreach (QGraphicsItem *child, item->childItems()) {
-            if (QDeclarativeItem *childQml = qgraphicsitem_cast<QDeclarativeItem *>(child))
-                iterateQmlTree(childQml, result);
+        foreach (QQuickItem *child, item->childItems()) {
+            iterateQmlTree(child, result);
         }
     }
 }
@@ -50,7 +51,7 @@ QObject *QmlItemManager::variantCast(const QVariant &variant) const
     return obj;
 }
 
-bool QmlItemManager::setProperty(QDeclarativeItem *di, const QString &property, const QString &value)
+bool QmlItemManager::setProperty(QQuickItem *di, const QString &property, const QString &value)
 {
     auto itr = std::find_if(PropInfo::transferedProperties().begin(),
                             PropInfo::transferedProperties().end(),
@@ -65,17 +66,17 @@ bool QmlItemManager::setProperty(QDeclarativeItem *di, const QString &property, 
 
         QStringList propPath = itr->name.split(".", QString::KeepEmptyParts);
         if (propPath.size() == 1) { // simple case
-            return di->setProperty(property.toAscii().data(), itr->convert(value));
+            return di->setProperty(property.toLatin1().data(), itr->convert(value));
 
         } else if (propPath.size() == 2) { // complex, e.g. anchors.leftMargin
-            QVariant v = di->property(propPath.first().toAscii().data());
+            QVariant v = di->property(propPath.first().toLatin1().data());
             if (v.isNull() || !v.isValid()) {
                 qDebug()<<"[QMLTUNER] failed to get property "<<propPath.first();
                 return false;
             }
 
             if (QObject *object = variantCast(v)) {
-                return object->setProperty(propPath.last().toAscii().data(), itr->convert(value));
+                return object->setProperty(propPath.last().toLatin1().data(), itr->convert(value));
             }
 
         }
@@ -88,7 +89,7 @@ QVector<ItemNotation> QmlItemManager::enumerateItems()
     qDebug()<<"[QMLTUNER] QmlItemManager:enumerateItems()";
 
     QVector<ItemNotation> result;
-    foreach (QDeclarativeItem *rootQml, findRootQmlItems())
+    foreach (QQuickItem *rootQml, findRootQmlItems())
         iterateQmlTree(rootQml, result);
     return result;
 }
@@ -97,7 +98,7 @@ bool QmlItemManager::setProperty(const QString &itemAddress, const QString &prop
 {
     qDebug()<<"[QMLTUNER] QmlItemManager::setProperty()"<<itemAddress<<property<<value;
 
-    if (QDeclarativeItem *di = findQmlItem(itemAddress))
+    if (QQuickItem *di = findQmlItem(itemAddress))
         return setProperty(di, property, value);
 
     return false;
@@ -106,7 +107,8 @@ bool QmlItemManager::setProperty(const QString &itemAddress, const QString &prop
 bool QmlItemManager::highlight(const QString &itemAddress)
 {
 //    qDebug()<<"[QMLTUNER] QmlItemManager::highlight()"<<itemAddress;
-    if (QDeclarativeItem *di = findQmlItem(itemAddress)) {
+#if 0
+    if (QQuickItem *di = findQmlItem(itemAddress)) {
         if (mHighlight->scene() != di->scene()) {
             if (mHighlight->scene())
                 mHighlight->scene()->removeItem(mHighlight);
@@ -122,13 +124,14 @@ bool QmlItemManager::highlight(const QString &itemAddress)
 
         return true;
     }
-
+#endif
     return false;
 }
 
 bool QmlItemManager::showTarget(const QString &pathToFile, double opacity)
 {
-    foreach (QDeclarativeView *dv, findQmlViews()) {
+#if 0
+    foreach (QQuickView *dv, findQmlViews()) {
         QGraphicsPixmapItem *overlayItem = mTargets.value(dv);
         if (!overlayItem) {
             overlayItem = dv->scene()->addPixmap(QPixmap());
@@ -146,47 +149,48 @@ bool QmlItemManager::showTarget(const QString &pathToFile, double opacity)
     }
 
     return !pathToFile.isEmpty(); // ### what for?
+#else
+    return true;
+#endif
 }
 
-QVector<QDeclarativeView *> QmlItemManager::findQmlViews() const
+QVector<QQuickWindow *> QmlItemManager::findQmlViews() const
 {
-    QVector<QDeclarativeView *> views;
-    foreach (QWidget *w, qApp->allWidgets()) {
-        if (QDeclarativeView *view = qobject_cast<QDeclarativeView *>(w))
+    QVector<QQuickWindow *> views;
+    foreach (QWindow *w, qApp->topLevelWindows()) {
+        if (QQuickWindow *view = qobject_cast<QQuickWindow *>(w))
             views.append(view);
     }
     return views;
 }
 
-QVector<QDeclarativeItem *> QmlItemManager::findRootQmlItems() const
-{
-    QVector<QDeclarativeItem *> items;
-    foreach (QDeclarativeView *view, findQmlViews()) {
-        if (QDeclarativeItem *rootItem = qgraphicsitem_cast<QDeclarativeItem *>(view->rootObject()))
+QVector<QQuickItem *> QmlItemManager::findRootQmlItems() const
+{    
+    QVector<QQuickItem *> items;
+    foreach (QQuickWindow *view, findQmlViews()) {
+        if (QQuickItem *rootItem = view->contentItem())
             items.append(rootItem);
     }
     return items;
 }
 
-QDeclarativeItem *QmlItemManager::findQmlItem(const QString &address, QDeclarativeItem *root) const
+QQuickItem *QmlItemManager::findQmlItem(const QString &address, QQuickItem *root) const
 {
     if (!root) {
         foreach (root, findRootQmlItems()) {
             if (addressString(root) == address)
                 return root;
 
-            if (QDeclarativeItem *result = findQmlItem(address, root))
+            if (QQuickItem *result = findQmlItem(address, root))
                 return result;
         }
     } else {
         if (addressString(root) == address)
             return root;
 
-        foreach (QGraphicsItem *child, root->childItems()) {
-            if (QDeclarativeItem *childQml = qgraphicsitem_cast<QDeclarativeItem *>(child)) {
-                if (QDeclarativeItem *result = findQmlItem(address, childQml))
-                    return result;
-            }
+        foreach (QQuickItem *child, root->childItems()) {
+            if (QQuickItem *result = findQmlItem(address, child))
+                return result;
         }
     }
 
@@ -194,24 +198,24 @@ QDeclarativeItem *QmlItemManager::findQmlItem(const QString &address, QDeclarati
 }
 
 
-QMap<QString, QString> QmlItemManager::getPropertyMap(QDeclarativeItem *item) const
+QMap<QString, QString> QmlItemManager::getPropertyMap(QQuickItem *item) const
 {
     QMap<QString, QString> result;
 
     foreach (const PropInfo &pi, PropInfo::transferedProperties()) {
         QStringList propPath = pi.name.split(".", QString::KeepEmptyParts);
         if (propPath.size() == 1) { // simple case
-            result.insert(pi.name, item->property(pi.name.toAscii().data()).toString());
+            result.insert(pi.name, item->property(pi.name.toLatin1().data()).toString());
 
         } else if (propPath.size() == 2) { // complex, e.g. anchors.leftMargin
-            QVariant v = item->property(propPath.first().toAscii().data());
+            QVariant v = item->property(propPath.first().toLatin1().data());
             if (v.isNull() || !v.isValid()) {
                 qDebug()<<"[QMLTUNER] failed to get property "<<propPath.first();
                 continue;
             }
 
             if (QObject *object = variantCast(v)) {
-                result.insert(pi.name, object->property(propPath.last().toAscii().data()).toString());
+                result.insert(pi.name, object->property(propPath.last().toLatin1().data()).toString());
 
             } else {
                 qDebug()<<"[QMLTUNER] casting failed" << propPath.first();
@@ -224,7 +228,7 @@ QMap<QString, QString> QmlItemManager::getPropertyMap(QDeclarativeItem *item) co
     return result;
 }
 
-ItemNotation QmlItemManager::itemNotation(QDeclarativeItem *item) const
+ItemNotation QmlItemManager::itemNotation(QQuickItem *item) const
 {
     ItemNotation in;
     if (item) {
@@ -236,7 +240,7 @@ ItemNotation QmlItemManager::itemNotation(QDeclarativeItem *item) const
     return in;
 }
 
-bool QmlItemManager::checkItemNeeded(QDeclarativeItem *item) const
+bool QmlItemManager::checkItemNeeded(QQuickItem *item) const
 {
     foreach (const QString &str, mIgnoreTypes)
         if (QString(item->metaObject()->className()).contains(str)) {

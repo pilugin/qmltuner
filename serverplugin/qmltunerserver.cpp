@@ -1,5 +1,5 @@
 #include "qmltunerserver.h"
-#include <QtGui/QApplication>
+#include <QtGui/QGuiApplication>
 #include <QtDBus/QDBusConnection>
 #include <QtDebug>
 
@@ -7,7 +7,7 @@
 
 bool QmlTunerServer::sActivated = false;
 
-void QmlTunerServer::init(QApplication *app)
+void QmlTunerServer::init(QGuiApplication *app)
 {
     Q_ASSERT(app);
 
@@ -15,7 +15,7 @@ void QmlTunerServer::init(QApplication *app)
     Q_UNUSED(instance);
 }
 
-QmlTunerServer::QmlTunerServer(QApplication *) : mQmlItemMgr(0)
+QmlTunerServer::QmlTunerServer(QGuiApplication *) : mQmlItemMgr(0)
 {
     const QByteArray envStr = qgetenv("QML_TUNER");
 
@@ -32,7 +32,7 @@ QmlTunerServer::QmlTunerServer(QApplication *) : mQmlItemMgr(0)
         qDebug()<<"[QMLTUNER] initializing...  ";
 
         mQmlItemMgr = new QmlItemManager(this);
-        sActivated = QDBusConnection::sessionBus().registerService("com.luxoft.qmltuner");
+        sActivated = QDBusConnection::sessionBus().registerService("org.pilugin.QmlTuner");
         sActivated = sActivated && QDBusConnection::sessionBus().registerObject("/qmltuner", this);
         if (sActivated)
             qDebug() << "[QMLTUNER] Ready";

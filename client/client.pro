@@ -16,6 +16,8 @@ SOURCES += \
 FORMS += \
     form.ui
 
+QT += widgets
+
 QML_TUNER_DBUS = client
 include( $$PWD/../dbus/dbus.pri )
 

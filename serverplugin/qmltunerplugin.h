@@ -1,18 +1,20 @@
 #ifndef QMLTUNERPLUGIN_H
 #define QMLTUNERPLUGIN_H
 
-#include <QDeclarativeExtensionPlugin>
+#include <QQmlExtensionPlugin>
 
 class QmlItemManager;
 
-class QmlTunerPlugin : public QDeclarativeExtensionPlugin
+class QmlTunerPlugin : public QQmlExtensionPlugin
 {
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.pilugin.QmlTuner" FILE "qmltuner.json")
 public:
     QmlTunerPlugin();
     ~QmlTunerPlugin();
 
     void registerTypes(const char *uri);
-    void initializeEngine(QDeclarativeEngine *engine, const char *uri);
+    void initializeEngine(QQmlEngine *engine, const char *uri);
 private:
 };
 

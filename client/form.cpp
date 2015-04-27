@@ -3,13 +3,13 @@
 #include <QInputDialog>
 #include <QFileDialog>
 
-static const char qml_tuner_service[] = "com.luxoft.qmltuner";
+static const char qml_tuner_service[] = "org.pilugin.QmlTuner";
 static const char qml_tuner_object[] = "/qmltuner";
 
 Form::Form(QWidget *parent)
     : QWidget(parent),
       ui(new Ui::Form),
-      mSettings(QLatin1String("luxoft"), QLatin1String("qmltuner"))
+      mSettings(QLatin1String("pilugin"), QLatin1String("qmltuner"))
 {
     ui->setupUi(this);
     ui->itemsView->setModel( &mItemsModel );

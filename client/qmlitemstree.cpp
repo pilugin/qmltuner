@@ -1,4 +1,5 @@
 #include "qmlitemstree.h"
+#include <QColor>
 
 QmlItemsTree::QmlItemsTree(QObject *parent) :
     QAbstractItemModel(parent)
@@ -58,9 +59,9 @@ QVariant QmlItemsTree::data(const QModelIndex &index, int role) const
 
         case Qt::BackgroundColorRole:
             if (mChangedItems.contains(node->data.address))
-                return Qt::lightGray;
+                return QColor(Qt::lightGray);
             else
-                return Qt::white;
+                return QColor(Qt::white);
         default:
             return QVariant();
             //return QString::number(role);

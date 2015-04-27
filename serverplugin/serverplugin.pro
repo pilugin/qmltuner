@@ -2,7 +2,7 @@ TARGET = qmltuner
 TEMPLATE = lib
 
 CONFIG += qt plugin
-QT += declarative
+QT += qml quick widgets
 
 QMAKE_CXXFLAGS += -std=c++0x
 
@@ -20,7 +20,8 @@ SOURCES += \
     inject.cpp
 
 OTHER_FILES += \
-    qmldir
+    qmldir \
+    qmltuner.json
 
 QML_TUNER_DBUS = server
 include( $$PWD/../dbus/dbus.pri )
