@@ -7,7 +7,7 @@ class QQuickItem;
 class QQuickWindow;
 class QQmlComponent;
 
-class QGraphicsPixmapItem;
+class QWindow;
 
 class QmlItemManager : public QmlTunerAdaptor
 {
@@ -26,6 +26,7 @@ public slots:
 
 private:
     QVector<QQuickWindow *> findQmlViews() const;
+    void findQmlViews(QVector<QQuickWindow *> &qmls, QWindow *parent) const;
     QVector<QQuickItem *> findRootQmlItems() const;
     QQuickItem *findQmlItem(const QString &address, QQuickItem *root = 0) const;
 
@@ -47,7 +48,7 @@ private:
     QQuickItem *mHighlight;
     QQmlComponent *mHighlightFactory;
 
-    QHash<QQuickWindow *, QGraphicsPixmapItem *> mTargets;
+    //QHash<QQuickWindow *, QGraphicsPixmapItem *> mTargets;
 };
 
 #endif // QMLITEMMANAGER_H

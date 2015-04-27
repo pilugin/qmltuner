@@ -185,11 +185,24 @@ bool QmlItemManager::showTarget(const QString &pathToFile, double opacity)
 QVector<QQuickWindow *> QmlItemManager::findQmlViews() const
 {
     QVector<QQuickWindow *> views;
+
     foreach (QWindow *w, qApp->topLevelWindows()) {
         if (QQuickWindow *view = qobject_cast<QQuickWindow *>(w))
             views.append(view);
+        else
+            findQmlViews(views, view);
     }
     return views;
+}
+
+void QmlItemManager::findQmlViews(QVector<QQuickWindow *> &qmls, QWindow *parent) const
+{
+    foreach (QObject *obj, parent->children()) {
+        if (QQuickWindow *qml = qobject_cast<QQuickWindow *>(obj))
+            qmls.append(qml);
+        else if (QWindow *window = qobject_cast<QWindow *>(obj))
+            findQmlViews(qmls, window);
+    }
 }
 
 QVector<QQuickItem *> QmlItemManager::findRootQmlItems() const
