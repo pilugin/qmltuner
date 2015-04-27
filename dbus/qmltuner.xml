@@ -1,0 +1,20 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node>
+  <interface name="com.luxoft.qmltuner">
+    <method name="enumerateItems">
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVector&lt;QPair&lt;QString, QVector&lt; QPair&lt; QString, QString&gt; &gt; &gt; &gt;"/>
+      <arg direction="out" type="a(sa(ss))" name="items"/>
+    </method>
+    <method name="describeItem">
+      <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVector&lt;QPair&lt;QString, QString&gt; &gt;"/>
+      <arg direction="in" type="s" name="address"/>
+      <arg direction="out" type="a(ss)" name="properties"/>
+    </method>
+    <method name="setProperty">
+      <arg direction="in" type="s" name="itemAddress"/>
+      <arg direction="in" type="s" name="property"/>
+      <arg direction="in" type="s" name="value"/>
+      <arg direction="out" type="b" name="success"/>
+    </method>
+  </interface>
+</node>
