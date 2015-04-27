@@ -25,7 +25,7 @@ void QmlItemManager::iterateQmlTree(QQuickItem *item, QVector<ItemNotation> &res
 {
 //    qDebug()<<"[QMLTUNER] iterateQmlTree"<<item;
 
-    if (item) {
+    if (item && item != mHighlight) {
         ItemNotation in = itemNotation(item);
         result.append(in);
 
@@ -125,6 +125,7 @@ bool QmlItemManager::highlight(const QString &itemAddress)
 
             if (mHighlightFactory->isError()) {
                 qDebug()<<mHighlightFactory->errors();
+                return false;
             }
         }
 
